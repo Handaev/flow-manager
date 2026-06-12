@@ -1,0 +1,195 @@
+openapi: 3.0.3
+
+info:
+  title: Flow Manager API
+  description: API Flow Manager сервиса
+  version: 1.0.0
+
+servers:
+  - url: http://localhost:8080
+    description: Manager server
+
+tags:
+  - name: Files
+    description: Управление файлами и конвертация
+
+paths:
+  /flow_manager/files/upload-and-convert:
+    post:
+      summary: Загрузка и запуск конвертации нового файла
+      tags:
+        - Files
+
+      parameters:
+        - name: toExtension
+          in: query
+          required: true
+          description: Целевое расширение, в которое нужно конвертировать файл
+          schema:
+            type: string
+            example: "mp4"
+        - name: bucketName
+          in: query
+          required: true
+          description: Название бакета
+          schema:
+            type: string
+            example: "user-media-bucket"
+            minLength: 3
+            maxLength: 63
+            pattern: "^[a-z0-9.-]+$"
+
+      requestBody:
+        required: true
+        description: Бинарный файл для загрузки
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required:
+                - file
+              properties:
+                file:
+                  type: string
+                  format: binary
+                  description: Бинарный поток самого файла
+      responses:
+        '201':
+          description: Файл успешно загружен и отправлен на конвертацию
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FileResponse'
+        '400':
+          description: Неверные параметры запроса
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorMessage'
+        '500':
+          description: Внутренняя ошибка сервера при конвертации
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorMessage'
+
+  /flow_manager/files/{file_id}/status:
+    get:
+      summary: Проверка статуса обработки
+      tags:
+        - Files
+      parameters:
+        - name: file_id
+          in: path
+          required: true
+          description: Id файла
+          schema:
+            type: integer
+            format: int64
+            example: 234567
+      responses:
+        '200':
+          description: Статус успешно получен
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FileResponse'
+        '400':
+          description: Файл с таким ID не найден в базе данных
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorMessage'
+        '500':
+          description: Внутренняя ошибка сервера
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorMessage'
+
+  /flow_manager/files/{file_id}/converted_file:
+    get:
+      summary: Получение конвертированного файла
+      tags:
+        - Files
+      parameters:
+        - name: file_id
+          in: path
+          required: true
+          description: Id файла
+          schema:
+            type: integer
+            format: int64
+            example: 234567
+      responses:
+        '200':
+          description: Файл успешно получен и скачивается
+          content:
+            application/octet-stream:
+              schema:
+                type: string
+                format: binary
+        '400':
+          description: Файл с указанным ID не найден в БД или отсутствует в MinIO
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorMessage'
+        '500':
+          description: Ошибка чтения потока из хранилища
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorMessage'
+
+components:
+  schemas:
+    FileResponse:
+      type: object
+      required:
+        - id
+        - name
+        - fromExtension
+        - toExtension
+        - status
+        - path
+      properties:
+        id:
+          type: integer
+          format: int64
+          example: 5423
+        name:
+          type: string
+          example: "video"
+        fromExtension:
+          type: string
+          example: "avi"
+        toExtension:
+          type: string
+          example: "mp4"
+        status:
+          type: string
+          example: "PROCESSING"
+        path:
+          type: string
+          example: "user-media-bucket/video.mp4"
+
+    ErrorMessage:
+      type: object
+      properties:
+        statusCode:
+          type: integer
+          example: 500
+        timestamp:
+          type: string
+          format: date-time
+          description: Время ошибки
+          example: '2026-06-11T16:45:00'
+        message:
+          type: string
+          description: Понятное описание ошибки для клиента
+          example: "Файл не найден"
+        description:
+          type: string
+          description: Детали запроса
+          example: "uri=/api/files/uploadAndConvert"

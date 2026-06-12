@@ -1,0 +1,49 @@
+server:
+  scheduler:
+    fixedRateSetStatusFailed: 300000
+    fixedRateWriteOutbox: 5000
+    limit: 100
+  conversion:
+    fromBucket: "aaaa"
+spring:
+  application:
+    name: flow-manager
+
+  datasource:
+    url: ${URL_DB:jdbc:postgresql://localhost:5433/flow-manager}
+    username: postgres
+    password: postgres
+    driver-class-name: org.postgresql.Driver
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+
+  cloud:
+    aws:
+      s3:
+        endpoint: http://localhost:9000
+        path-style-access-enabled: true
+      credentials:
+        access-key: "jora"
+        secret-key: "jora1234"
+      region:
+        static: us-east-1
+
+  kafka:
+    bootstrap-servers: localhost:9092
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+      topicRequest: conversion-request
+    consumer:
+      group-id: conversion
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      topicResponse: conversion-response
+
+springdoc:
+  swagger-ui:
+    url: /openapi/openapi-flow-manager.yaml
+    path: /swagger-ui.html
+
