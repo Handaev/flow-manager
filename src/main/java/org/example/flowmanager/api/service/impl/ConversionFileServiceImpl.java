@@ -23,7 +23,7 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Objects;
 
-import org.example.flowmanager.api.service.constant.ConstantService;
+import org.example.flowmanager.api.service.utils.Utils;
 
 @Slf4j
 @Service
@@ -52,10 +52,10 @@ public class ConversionFileServiceImpl implements ConversionFileService {
         String fullFileName = value.fileName();
         StringBuilder path = new StringBuilder();
         path.append(value.bucketName());
-        path.append(ConstantService.SLASH);
+        path.append(Utils.SLASH);
         path.append(fullFileName);
-        String name = fullFileName.split("\\.")[ConstantService.ONLY_NAME];
-        String toExtension = fullFileName.split("\\.")[ConstantService.ONLY_EXTENSION];
+        String name = fullFileName.split("\\.")[Utils.ONLY_NAME];
+        String toExtension = fullFileName.split("\\.")[Utils.ONLY_EXTENSION];
 
         try {
             ConversionFile conversionFile = conversionFileRepositoryJpa.findConversionFileByBucketNameAndFileName(FROM_BUCKET, name, toExtension);
@@ -99,9 +99,9 @@ public class ConversionFileServiceImpl implements ConversionFileService {
         ConversionFile conversionFile = findConversionFileByFileId(fileId);
 
         String toExtension = conversionFile.getToExtension();
-        String originalPath = ConstantService.REMOVE_LAST_ELEMENT_PATTERN.matcher(conversionFile.getPath()).replaceAll("");
-        String path = ConstantService.REPLACE_FIRST_WORD_PATTERN.matcher(originalPath).replaceFirst(toExtension);
-        String name = ConstantService.REPLACE_EXTENSION_PATTERN.matcher(conversionFile.getName()).replaceAll("." + toExtension);
+        String originalPath = Utils.REMOVE_LAST_ELEMENT_PATTERN.matcher(conversionFile.getPath()).replaceAll("");
+        String path = Utils.REPLACE_FIRST_WORD_PATTERN.matcher(originalPath).replaceFirst(toExtension);
+        String name = Utils.REPLACE_EXTENSION_PATTERN.matcher(conversionFile.getName()).replaceAll("." + toExtension);
 
         try {
             return minioServiceImpl.download(path, name);

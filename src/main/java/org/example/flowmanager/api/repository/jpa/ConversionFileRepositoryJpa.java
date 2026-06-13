@@ -6,7 +6,7 @@ import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.CriteriaQuery;
 import jakarta.persistence.criteria.Root;
 import org.example.flowmanager.api.entity.ConversionFile;
-import org.example.flowmanager.api.repository.constant.ConstantRepository;
+import org.example.flowmanager.api.repository.utils.ConstantRepository;
 import org.springframework.stereotype.Repository;
 
 @Repository

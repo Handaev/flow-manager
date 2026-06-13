@@ -1,4 +1,4 @@
-package org.example.flowmanager.api.repository.constant;
+package org.example.flowmanager.api.repository.utils;
 
 public class ConstantRepository {
     public static final String FIELDS_PATH = "path";

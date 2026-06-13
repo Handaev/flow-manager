@@ -8,7 +8,6 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Enumerated;
 import jakarta.persistence.EnumType;
-import jakarta.persistence.PrePersist;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -18,7 +17,6 @@ import lombok.EqualsAndHashCode;
 import lombok.Builder;
 
 import java.time.LocalDateTime;
-import java.util.Objects;
 
 @Setter
 @Getter
@@ -55,14 +53,7 @@ public class ConversionFile {
     @Column(nullable = false)
     private StatusFile status = StatusFile.IN_PROCESSING;
 
+    @Builder.Default
     @Column(name = "created_at", nullable = false, updatable = false)
-    private LocalDateTime createdAt;
-
-    @PrePersist
-    protected void onCreate() {
-        if (Objects.isNull(this.status)) {
-            this.status = StatusFile.IN_PROCESSING;
-        }
-        this.createdAt = LocalDateTime.now();
-    }
+    private LocalDateTime createdAt = LocalDateTime.now();
 }

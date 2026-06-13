@@ -1,14 +1,11 @@
 package org.example.flowmanager.api.service.sheduler;
 
 import lombok.RequiredArgsConstructor;
-import org.example.flowmanager.api.entity.ConversionFileOutbox;
 import org.example.flowmanager.api.kafka.KafkaProducerService;
 import org.example.flowmanager.api.repository.ConversionFileOutboxRepository;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.List;
 
 @Component
 @RequiredArgsConstructor
@@ -20,14 +17,11 @@ public class ConversionFileOutboxScheduler {
     @Transactional
     @Scheduled(fixedRateString = "${server.scheduler.fixedRateWriteOutbox}")
     public void processOutbox() {
-        List<ConversionFileOutbox> unsafeEvents = conversionFileOutboxRepository.findAllBySentFalse();
-
-        if(!unsafeEvents.isEmpty()) {
-            for (ConversionFileOutbox outbox : unsafeEvents) {
-                kafkaProducerService.sendEvent(outbox);
-                outbox.setSent(true);
-                conversionFileOutboxRepository.save(outbox);
-            }
-        }
+        conversionFileOutboxRepository.findAllBySentFalse()
+                .forEach(fileOutbox -> {
+                    kafkaProducerService.sendEvent(fileOutbox);
+                    fileOutbox.setSent(true);
+                    conversionFileOutboxRepository.save(fileOutbox);
+                });
     }
 }

@@ -12,12 +12,10 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.test.util.ReflectionTestUtils;
 
-import java.util.Collections;
 import java.util.List;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -34,16 +32,6 @@ class ConversionFileSchedulerTest {
     @BeforeEach
     void setUp() {
         ReflectionTestUtils.setField(conversionFileScheduler, "LIMIT", 10);
-    }
-
-    @Test
-    void shouldProcessConversionFile_saveNoCall() {
-        when(conversionFileService.findAllByCreatedAtMoreTenMinutesAndStatusFailed(eq(10), eq(StatusFile.FAILED)))
-                .thenReturn(Collections.emptyList());
-
-        conversionFileScheduler.processConversionFile();
-
-        verify(conversionFileService, never()).saveConversionFiles(any());
     }
 
     @Test

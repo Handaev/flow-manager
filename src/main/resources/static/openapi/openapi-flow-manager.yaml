@@ -14,8 +14,9 @@ tags:
     description: Управление файлами и конвертация
 
 paths:
-  /flow_manager/files/upload-and-convert:
+  /files/upload-and-convert:
     post:
+      operationId: fileUploadAndConvert
       summary: Загрузка и запуск конвертации нового файла
       tags:
         - Files
@@ -73,8 +74,9 @@ paths:
               schema:
                 $ref: '#/components/schemas/ErrorMessage'
 
-  /flow_manager/files/{file_id}/status:
+  /files/{file_id}/status:
     get:
+      operationId: getFileStatus
       summary: Проверка статуса обработки
       tags:
         - Files
@@ -107,8 +109,9 @@ paths:
               schema:
                 $ref: '#/components/schemas/ErrorMessage'
 
-  /flow_manager/files/{file_id}/converted_file:
+  /files/{file_id}/converted_file:
     get:
+      operationId: getConvertedFile
       summary: Получение конвертированного файла
       tags:
         - Files

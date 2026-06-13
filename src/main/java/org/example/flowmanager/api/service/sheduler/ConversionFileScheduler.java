@@ -22,9 +22,6 @@ public class ConversionFileScheduler {
     @Scheduled(fixedRateString = "${server.scheduler.fixedRateSetStatusFailed}")
     public void processConversionFile() {
         List<ConversionFile> conversionFiles = conversionFileService.findAllByCreatedAtMoreTenMinutesAndStatusFailed(LIMIT, StatusFile.FAILED);
-
-        if(!conversionFiles.isEmpty()){
-            conversionFileService.saveConversionFiles(conversionFiles);
-        }
+        conversionFileService.saveConversionFiles(conversionFiles);
     }
 }

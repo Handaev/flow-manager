@@ -1,8 +1,8 @@
-package org.example.flowmanager.api.service.constant;
+package org.example.flowmanager.api.service.utils;
 
 import java.util.regex.Pattern;
 
-public class ConstantService {
+public class Utils {
 
     public final static int ONLY_NAME = 0;
 

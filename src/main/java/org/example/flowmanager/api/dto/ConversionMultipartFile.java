@@ -7,8 +7,10 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.ByteArrayInputStream;
 import java.io.File;
+import java.io.IOException;
 import java.io.InputStream;
 import java.util.Objects;
+import java.nio.file.Files;
 
 @Setter
 @Getter
@@ -57,5 +59,7 @@ public class ConversionMultipartFile implements MultipartFile {
     }
 
     @Override
-    public void transferTo(File dest) throws IllegalStateException {}
+    public void transferTo(File dest) throws IllegalStateException, IOException {
+        Files.write(dest.toPath(), this.content);
+    }
 }

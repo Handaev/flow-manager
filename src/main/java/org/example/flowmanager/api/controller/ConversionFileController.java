@@ -21,19 +21,19 @@ public class ConversionFileController implements FilesApi {
     private final ConversionFileServiceImpl conversionFileService;
 
     @Override
-    public ResponseEntity<Resource> flowManagerFilesFileIdConvertedFileGet(Long fileId) {
+    public ResponseEntity<Resource> getConvertedFile(Long fileId) {
         return ResponseEntity.status(HttpStatus.OK)
                 .body(conversionFileService.findConvertedFileByFileId(fileId));
     }
 
     @Override
-    public ResponseEntity<FileResponseDto> flowManagerFilesFileIdStatusGet(Long fileId) {
+    public ResponseEntity<FileResponseDto> getFileStatus(Long fileId) {
         return ResponseEntity.status(HttpStatus.OK)
                 .body(conversionFileService.findStatusByFileId(fileId));
     }
 
     @Override
-    public ResponseEntity<FileResponseDto> flowManagerFilesUploadAndConvertPost(String toExtension, String bucketName, MultipartFile file) {
+    public ResponseEntity<FileResponseDto> fileUploadAndConvert(String toExtension, String bucketName, MultipartFile file) {
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(workflowService.processConvert(toExtension, bucketName, file));
     }

@@ -75,7 +75,7 @@ public class ConversionFileControllerIT extends BaseContext {
 
     @Test
     public void flowManagerFilesFileIdConvertedFileGet_Successfully() throws IOException {
-        ResponseEntity<Resource> file = conversionFileController.flowManagerFilesFileIdConvertedFileGet(this.firstFileId);
+        ResponseEntity<Resource> file = conversionFileController.getConvertedFile(this.firstFileId);
 
         Assertions.assertNotNull(file.getBody());
         Assertions.assertArrayEquals("1234567890000".getBytes(), file.getBody().getContentAsByteArray());
@@ -84,7 +84,7 @@ public class ConversionFileControllerIT extends BaseContext {
     @Test
     public void flowManagerFilesFileIdConvertedFileGet_NotFound() {
         long fileId = 12345678L;
-        assertThatThrownBy(() -> conversionFileController.flowManagerFilesFileIdConvertedFileGet(fileId))
+        assertThatThrownBy(() -> conversionFileController.getConvertedFile(fileId))
                 .isInstanceOf(ManagerException.class)
                 .hasMessageContaining(String.format("Файла с таким id: %s не существует", fileId));
 
@@ -92,7 +92,7 @@ public class ConversionFileControllerIT extends BaseContext {
 
     @Test
     public void flowManagerFilesFileIdStatusGet_Successfully() {
-        ResponseEntity<FileResponseDto> response = conversionFileController.flowManagerFilesFileIdStatusGet(this.secondFileId);
+        ResponseEntity<FileResponseDto> response = conversionFileController.getFileStatus(this.secondFileId);
 
         Assertions.assertNotNull(response.getBody());
         Assertions.assertEquals("SUCCESS", response.getBody().getStatus());
@@ -101,7 +101,7 @@ public class ConversionFileControllerIT extends BaseContext {
     @Test
     public void flowManagerFilesFileIdStatusGet_NotFound() {
         long fileId = 12345678L;
-        assertThatThrownBy(() -> conversionFileController.flowManagerFilesFileIdStatusGet(fileId))
+        assertThatThrownBy(() -> conversionFileController.getFileStatus(fileId))
                 .isInstanceOf(ManagerException.class)
                 .hasMessageContaining(String.format("Файла с таким id: %s не существует", fileId));
 
@@ -117,7 +117,7 @@ public class ConversionFileControllerIT extends BaseContext {
         dto.setName("file.txt");
 
         ResponseEntity<FileResponseDto> response = conversionFileController
-                .flowManagerFilesUploadAndConvertPost("pdf", "aaaa", multipartFile);
+                .fileUploadAndConvert("pdf", "aaaa", multipartFile);
 
         FileResponseDto dtoRes = response.getBody();
 

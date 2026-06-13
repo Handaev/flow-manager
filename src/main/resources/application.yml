@@ -1,10 +1,12 @@
 server:
+  servlet:
+    context-path: /flow-manager
   scheduler:
     fixedRateSetStatusFailed: 300000
     fixedRateWriteOutbox: 5000
     limit: 100
   conversion:
-    fromBucket: "aaaa"
+    fromBucket: "sources"
 spring:
   application:
     name: flow-manager
