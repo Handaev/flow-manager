@@ -1,4 +1,6 @@
 server:
+  servlet:
+    context-path: /flow-manager
   scheduler:
     fixedRateSetStatusFailed: 300000
     fixedRateWriteOutbox: 5000

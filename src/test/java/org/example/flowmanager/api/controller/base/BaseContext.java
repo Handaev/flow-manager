@@ -3,7 +3,10 @@ package org.example.flowmanager.api.controller.base;
 import io.minio.BucketExistsArgs;
 import io.minio.MakeBucketArgs;
 import io.minio.MinioClient;
+import io.restassured.RestAssured;
+import org.junit.jupiter.api.BeforeEach;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.web.server.LocalServerPort;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
 import org.testcontainers.containers.MinIOContainer;
@@ -13,6 +16,9 @@ import org.testcontainers.utility.DockerImageName;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 public abstract class BaseContext {
+
+    @LocalServerPort
+    protected Integer port;
 
     static final PostgreSQLContainer<?> postgres = new PostgreSQLContainer<>("postgres:15-alpine");
     static final KafkaContainer kafka = new KafkaContainer(DockerImageName.parse("apache/kafka:3.7.0"));
@@ -24,6 +30,12 @@ public abstract class BaseContext {
         minio.start();
     }
 
+    @BeforeEach
+    void setUpRestAssured() {
+        RestAssured.baseURI = "http://localhost";
+        RestAssured.port = port;
+    }
+
     private static void initMinioBuckets(String s3Url, String user, String password) {
         try {
             MinioClient initClient = MinioClient.builder()
@@ -31,7 +43,7 @@ public abstract class BaseContext {
                     .credentials(user, password)
                     .build();
 
-            String[] buckets = {"aaaa", "pdf"};
+            String[] buckets = {"sources", "pdf"};
 
             for (String bucket : buckets) {
                 boolean exists = initClient.bucketExists(BucketExistsArgs.builder().bucket(bucket).build());

@@ -59,6 +59,8 @@ dependencies {
 
     testImplementation("org.apache.commons:commons-compress:1.24.0")
 
+    testImplementation("io.rest-assured:rest-assured")
+
     testCompileOnly("org.projectlombok:lombok")
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
     testAnnotationProcessor("org.projectlombok:lombok")
