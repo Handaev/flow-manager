@@ -65,9 +65,5 @@ public abstract class BaseContext {
         registry.add("spring.cloud.aws.credentials.access-key", () -> user);
         registry.add("spring.cloud.aws.credentials.secret-key", () -> password);
         registry.add("spring.cloud.aws.region.static", () -> "us-east-1");
-
-        registry.add("eureka.client.enabled", () -> "false");
-        registry.add("eureka.client.register-with-eureka", () -> "false");
-        registry.add("eureka.client.fetch-registry", () -> "false");
     }
 }

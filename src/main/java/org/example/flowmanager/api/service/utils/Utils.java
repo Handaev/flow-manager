@@ -15,5 +15,4 @@ public class Utils {
     public final static Pattern REPLACE_EXTENSION_PATTERN = Pattern.compile("\\.[^.]+$");
 
     public final static String SLASH = "/";
-
 }

@@ -22,6 +22,4 @@ public class ManagerException extends RuntimeException {
         super(message);
         this.status = httpStatus;
     }
-
 }
-

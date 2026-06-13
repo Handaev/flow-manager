@@ -15,5 +15,4 @@ public interface ConversionFileRepository extends JpaRepository<ConversionFile, 
 
     @Query(value = "select * from conversion_file c where c.created_at < now() - interval '10 minutes' and c.status = :status limit :limit", nativeQuery = true)
     List<ConversionFile> findAllByCreatedAtMoreTenMinutesAndStatusFailed(int limit, String status) ;
-
 }

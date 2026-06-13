@@ -31,5 +31,4 @@ public class KafkaConsumerService {
             log.debug("Error read message: {}", recordStr, e);
         }
     }
-
 }

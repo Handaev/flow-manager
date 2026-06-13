@@ -27,5 +27,4 @@ public class ConversionFileRepositoryJpa {
         );
         return entityManager.createQuery(query).getSingleResult();
     }
-
 }
