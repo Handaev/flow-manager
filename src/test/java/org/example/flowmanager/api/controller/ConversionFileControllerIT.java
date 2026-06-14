@@ -2,7 +2,6 @@ package org.example.flowmanager.api.controller;
 
 import org.example.flowmanager.api.controller.base.BaseContext;
 import org.example.flowmanager.api.dto.ConversionMultipartFile;
-import org.example.flowmanager.api.entity.ConversionFile;
 import org.example.flowmanager.api.entity.StatusFile;
 import org.example.flowmanager.api.repository.ConversionFileRepository;
 import org.example.flowmanager.api.service.minio.MinioServiceImpl;
@@ -18,7 +17,6 @@ import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.reactive.function.BodyInserters;
 
-import java.time.LocalDateTime;
 
 public class ConversionFileControllerIT extends BaseContext {
 
@@ -36,8 +34,8 @@ public class ConversionFileControllerIT extends BaseContext {
         conversionFileRepository.deleteAll();
     }
 
-    @Sql(scripts = "/sql/insert_files.sql")
     @Test
+    @Sql(scripts = "/sql/insert_files.sql")
     public void flowManagerFilesFileIdConvertedFileGet_Successfully() {
         long targetFileId = 101L;
 
@@ -77,17 +75,9 @@ public class ConversionFileControllerIT extends BaseContext {
     }
 
     @Test
+    @Sql(scripts = "/sql/insert_files.sql")
     public void flowManagerFilesFileIdStatusGet_Successfully() {
-        ConversionFile conversionFile = new ConversionFile();
-        conversionFile.setFromExtension("txt");
-        conversionFile.setToExtension("pdf");
-        conversionFile.setPath("sources");
-        conversionFile.setStatus(StatusFile.IN_PROCESSING);
-        conversionFile.setCreatedAt(LocalDateTime.now());
-        conversionFile.setName("file.txt");
-
-        ConversionFile savedFirst = conversionFileRepository.save(conversionFile);
-        long firstFileId = savedFirst.getId();
+        long firstFileId = 103L;
 
         webTestClient.get()
                 .uri("/files/{file_id}/status", firstFileId)
@@ -95,7 +85,7 @@ public class ConversionFileControllerIT extends BaseContext {
                 .expectStatus().isOk()
                 .expectHeader().contentType(MediaType.APPLICATION_JSON)
                 .expectBody()
-                .jsonPath("$.id").isEqualTo(firstFileId)
+                .jsonPath("$.id").isEqualTo((int) firstFileId)
                 .jsonPath("$.name").isEqualTo("file.txt")
                 .jsonPath("$.fromExtension").isEqualTo("txt")
                 .jsonPath("$.toExtension").isEqualTo("pdf")
