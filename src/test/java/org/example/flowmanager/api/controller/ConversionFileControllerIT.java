@@ -12,6 +12,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.http.MediaType;
+import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.web.reactive.server.WebTestClient;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
@@ -35,25 +36,10 @@ public class ConversionFileControllerIT extends BaseContext {
         conversionFileRepository.deleteAll();
     }
 
+    @Sql(scripts = "/sql/insert_files.sql")
     @Test
     public void flowManagerFilesFileIdConvertedFileGet_Successfully() {
-        ConversionFile conversionFile = new ConversionFile();
-        conversionFile.setFromExtension("txt");
-        conversionFile.setToExtension("pdf");
-        conversionFile.setPath("sources");
-        conversionFile.setStatus(StatusFile.SUCCESS);
-        conversionFile.setCreatedAt(LocalDateTime.now());
-        conversionFile.setName("file.txt");
-        conversionFileRepository.save(conversionFile);
-        long firstFileId = conversionFile.getId();
-
-        ConversionFile convertedFile = new ConversionFile();
-        convertedFile.setFromExtension("pdf");
-        convertedFile.setPath("pdf");
-        convertedFile.setStatus(StatusFile.SUCCESS);
-        convertedFile.setCreatedAt(LocalDateTime.now());
-        convertedFile.setName("file.pdf");
-        conversionFileRepository.save(convertedFile);
+        long targetFileId = 101L;
 
         byte[] value = "1234567890000".getBytes();
         ConversionMultipartFile multipartFile = new ConversionMultipartFile();
@@ -66,7 +52,7 @@ public class ConversionFileControllerIT extends BaseContext {
         minioService.upload(multipartFile);
 
         byte[] actualBytes = webTestClient.get()
-                .uri("/files/{file_id}/converted_file", firstFileId)
+                .uri("/files/{file_id}/converted_file", targetFileId)
                 .exchange()
                 .expectStatus().isOk()
                 .expectBody(byte[].class)
