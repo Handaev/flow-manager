@@ -1,30 +1,39 @@
 package org.example.flowmanager.api.controller;
 
-import io.restassured.http.ContentType;
 import org.example.flowmanager.api.controller.base.BaseContext;
 import org.example.flowmanager.api.dto.ConversionMultipartFile;
 import org.example.flowmanager.api.entity.ConversionFile;
 import org.example.flowmanager.api.entity.StatusFile;
 import org.example.flowmanager.api.repository.ConversionFileRepository;
 import org.example.flowmanager.api.service.minio.MinioServiceImpl;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.ByteArrayResource;
 import org.springframework.http.MediaType;
+import org.springframework.test.web.reactive.server.WebTestClient;
+import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.MultiValueMap;
+import org.springframework.web.reactive.function.BodyInserters;
 
 import java.time.LocalDateTime;
 
-import static io.restassured.RestAssured.given;
-import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.notNullValue;
-
 public class ConversionFileControllerIT extends BaseContext {
+
+    @Autowired
+    private WebTestClient webTestClient;
 
     @Autowired
     private ConversionFileRepository conversionFileRepository;
 
     @Autowired
     private MinioServiceImpl minioService;
+
+    @AfterEach
+    void tearDown() {
+        conversionFileRepository.deleteAll();
+    }
 
     @Test
     public void flowManagerFilesFileIdConvertedFileGet_Successfully() {
@@ -35,9 +44,8 @@ public class ConversionFileControllerIT extends BaseContext {
         conversionFile.setStatus(StatusFile.SUCCESS);
         conversionFile.setCreatedAt(LocalDateTime.now());
         conversionFile.setName("file.txt");
-
-        ConversionFile savedFirst = conversionFileRepository.save(conversionFile);
-        long firstFileId = savedFirst.getId();
+        conversionFileRepository.save(conversionFile);
+        long firstFileId = conversionFile.getId();
 
         ConversionFile convertedFile = new ConversionFile();
         convertedFile.setFromExtension("pdf");
@@ -47,8 +55,8 @@ public class ConversionFileControllerIT extends BaseContext {
         convertedFile.setName("file.pdf");
         conversionFileRepository.save(convertedFile);
 
-        ConversionMultipartFile multipartFile = new ConversionMultipartFile();
         byte[] value = "1234567890000".getBytes();
+        ConversionMultipartFile multipartFile = new ConversionMultipartFile();
         multipartFile.setFromExtension("pdf");
         multipartFile.setPath("pdf");
         multipartFile.setContent(value);
@@ -57,32 +65,29 @@ public class ConversionFileControllerIT extends BaseContext {
         multipartFile.setContentType("application/pdf");
         minioService.upload(multipartFile);
 
-        byte[] expectedBytes = value;
-        byte[] actualBytes = given()
-                .pathParam("file_id", firstFileId)
-                .when()
-                .get("/flow-manager/files/{file_id}/converted_file")
-                .then()
-                .statusCode(200)
-                .extract()
-                .asByteArray();
+        byte[] actualBytes = webTestClient.get()
+                .uri("/files/{file_id}/converted_file", firstFileId)
+                .exchange()
+                .expectStatus().isOk()
+                .expectBody(byte[].class)
+                .returnResult()
+                .getResponseBody();
 
-        Assertions.assertArrayEquals(expectedBytes, actualBytes);
+        Assertions.assertArrayEquals(value, actualBytes);
     }
 
     @Test
     public void flowManagerFilesFileIdConvertedFileGet_NotFound() {
         long fileId = 12345678L;
 
-        given()
-                .pathParam("file_id", fileId)
-                .when()
-                .get("/flow-manager/files/{file_id}/converted_file")
-                .then()
-                .statusCode(400)
-                .contentType(String.valueOf(MediaType.APPLICATION_JSON))
-                .body("statusCode", equalTo(400))
-                .body("message", equalTo(String.format("Файла с таким id: %s не существует", fileId)));
+        webTestClient.get()
+                .uri("/files/{file_id}/converted_file", fileId)
+                .exchange()
+                .expectStatus().isBadRequest()
+                .expectHeader().contentType(MediaType.APPLICATION_JSON)
+                .expectBody()
+                .jsonPath("$.statusCode").isEqualTo(400)
+                .jsonPath("$.message").isEqualTo(String.format("Файла с таким id: %s не существует", fileId));
     }
 
     @Test
@@ -97,34 +102,33 @@ public class ConversionFileControllerIT extends BaseContext {
 
         ConversionFile savedFirst = conversionFileRepository.save(conversionFile);
         long firstFileId = savedFirst.getId();
-        int expectedId = (int) firstFileId;
 
-        given()
-                .pathParam("file_id", firstFileId)
-                .when()
-                .get("/flow-manager/files/{file_id}/status")
-                .then()
-                .statusCode(200)
-                .body("id",  equalTo(expectedId))
-                .body("name",   equalTo("file.txt"))
-                .body("fromExtension",  equalTo("txt"))
-                .body("toExtension",  equalTo("pdf"))
-                .body("path",  equalTo("sources"))
-                .body("status",  equalTo(String.valueOf(StatusFile.IN_PROCESSING)));
+        webTestClient.get()
+                .uri("/files/{file_id}/status", firstFileId)
+                .exchange()
+                .expectStatus().isOk()
+                .expectHeader().contentType(MediaType.APPLICATION_JSON)
+                .expectBody()
+                .jsonPath("$.id").isEqualTo(firstFileId)
+                .jsonPath("$.name").isEqualTo("file.txt")
+                .jsonPath("$.fromExtension").isEqualTo("txt")
+                .jsonPath("$.toExtension").isEqualTo("pdf")
+                .jsonPath("$.path").isEqualTo("sources")
+                .jsonPath("$.status").isEqualTo(StatusFile.IN_PROCESSING.name());
     }
 
     @Test
     public void flowManagerFilesFileIdStatusGet_NotFound() {
         long fileId = 12345678L;
-        given()
-                .pathParam("file_id", fileId)
-                .when()
-                .get("/flow-manager/files/{file_id}/status")
-                .then()
-                .statusCode(400)
-                .contentType(String.valueOf(MediaType.APPLICATION_JSON))
-                .body("statusCode", equalTo(400))
-                .body("message", equalTo(String.format("Файла с таким id: %s не существует", fileId)));
+
+        webTestClient.get()
+                .uri("/files/{file_id}/status", fileId)
+                .exchange()
+                .expectStatus().isBadRequest()
+                .expectHeader().contentType(MediaType.APPLICATION_JSON)
+                .expectBody()
+                .jsonPath("$.statusCode").isEqualTo(400)
+                .jsonPath("$.message").isEqualTo(String.format("Файла с таким id: %s не существует", fileId));
     }
 
     @Test
@@ -132,24 +136,31 @@ public class ConversionFileControllerIT extends BaseContext {
         byte[] fileContent = "0123456789".getBytes();
         String fileName = "file.txt";
 
-        String targetExtension = "pdf";
-        String bucketName = "sources";
+        MultiValueMap<String, Object> body = new LinkedMultiValueMap<>();
+        ByteArrayResource resource = new ByteArrayResource(fileContent) {
+            @Override
+            public String getFilename() {
+                return fileName;
+            }
+        };
+        body.add("file", resource);
 
-        given()
-                .queryParam("toExtension", targetExtension)
-                .queryParam("bucketName", bucketName)
-                .multiPart("file", fileName, fileContent, "application/octet-stream")
-                .when()
-                .post("/flow-manager/files/upload-and-convert")
-                .then()
-                .log().ifValidationFails()
-                .statusCode(201)
-                .contentType(ContentType.JSON)
-                .body("id", notNullValue())
-                .body("name", equalTo(fileName))
-                .body("fromExtension", equalTo("txt"))
-                .body("toExtension", equalTo(targetExtension))
-                .body("path",  equalTo("sources/file.txt"))
-                .body("status", equalTo(String.valueOf(StatusFile.IN_PROCESSING)));
+        webTestClient.post()
+                .uri(uriBuilder -> uriBuilder
+                        .path("/files/upload-and-convert")
+                        .queryParam("toExtension", "pdf")
+                        .queryParam("bucketName", "sources")
+                        .build())
+                .contentType(MediaType.MULTIPART_FORM_DATA)
+                .body(BodyInserters.fromMultipartData(body))
+                .exchange()
+                .expectStatus().isCreated()
+                .expectBody()
+                .jsonPath("$.id").exists()
+                .jsonPath("$.name").isEqualTo(fileName)
+                .jsonPath("$.fromExtension").isEqualTo("txt")
+                .jsonPath("$.toExtension").isEqualTo("pdf")
+                .jsonPath("$.path").isEqualTo("sources/file.txt")
+                .jsonPath("$.status").isEqualTo(StatusFile.IN_PROCESSING.name());
     }
 }

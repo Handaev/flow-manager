@@ -61,6 +61,8 @@ dependencies {
 
     testImplementation("io.rest-assured:rest-assured")
 
+    testImplementation("org.springframework.boot:spring-boot-starter-webflux")
+
     testCompileOnly("org.projectlombok:lombok")
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
     testAnnotationProcessor("org.projectlombok:lombok")
