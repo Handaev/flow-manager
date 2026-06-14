@@ -1,0 +1,23 @@
+server:
+  servlet:
+    context-path: /flow-manager
+  scheduler:
+    fixedRateSetStatusFailed: 300000
+    fixedRateWriteOutbox: 5000
+    limit: 100
+  conversion:
+    fromBucket: "sources"
+
+spring:
+
+  cloud:
+    aws:
+      s3:
+        path-style-access-enabled: true
+
+  kafka:
+    producer:
+      topicRequest: conversion-request
+    consumer:
+      group-id: conversion
+      topicResponse: conversion-response

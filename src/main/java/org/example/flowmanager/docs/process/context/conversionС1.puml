@@ -1,0 +1,15 @@
+@startuml Context_Diagram
+!include <C4/C4_Context>
+
+title Контекстная диаграмма системы конвертации файлов
+
+Person(user, "Пользователь / Фронтенд", "Отправляет файлы на конвертацию через веб-интерфейс API")
+
+System_Boundary(ecosystem_conversion, "Экосистема конвертации") {
+    System(manager, "Flow Manager", "Обработка входящих запросов")
+    System(conversion, "Conversion Service", "Конвертация файлов")
+}
+
+Rel(user, manager, "Отправляет запрос (REST HTTP)", "JSON / Multipart")
+Rel(manager, conversion, "Перенаправляет запрос в сервис конвертации.")
+@enduml

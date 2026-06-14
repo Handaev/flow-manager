@@ -1,0 +1,25 @@
+@startuml Context_Diagram
+!include <C4/C4_Container>
+
+title Контейнерная диаграмма системы конвертации файлов
+
+Person(user, "Пользователь / Фронтенд", "Отправляет файлы на конвертацию через веб-интерфейс API")
+
+System_Boundary(ecosystem_co, "Экосистема конвертации") {
+    System(manager, "Flow Manager", "Обработка входящих запросов")
+    System(conversion, "Conversion Service", "Конвертация файлов")
+}
+System_Ext(postgresManager, "PostgreSQL Database", "Хранение данных о файлах")
+System_Ext(postgresConversion, "PostgreSQL Database", "Хранение метаданных конвертации")
+System_Ext(kafka, "Apache Kafka", "Брокер сообщений. Асинхронное взаимодействие")
+System_Ext(minio, "MinIO Object Storage", "S3-совместимое хранилище для исходных и сконвертированных PDF-файлов")
+
+Rel(user, manager, "HTTP/REST", "Отправляет файлы на конвертацию")
+Rel(manager, kafka, "Async", "Отправляет задачу в Kafka")
+Rel(manager, postgresManager, "JDBC", "Чтение и запись данных")
+Rel(manager, minio, "S3 API", "Скачивает файлы")
+Rel(kafka, conversion, "Async", "Читает сообщение из Kafka")
+Rel(conversion, minio, "S3 API", "Скачивает/загружает файлы")
+Rel(conversion, postgresConversion, "JDBC", "Сохраняет метаданные")
+
+@enduml

@@ -1,0 +1,62 @@
+@startuml
+title Диаграмма последовательности - Конвертация файла
+
+actor "Пользователь" as User
+participant "Flow Manager" as Manager
+database "Postgres Flow Manager" as DB_M
+participant "Conversion Service" as Converter
+participant "Kafka" as Kafka
+database "MinIO" as Storage
+database "Postgres Conversion" as DB_C
+
+User -> Manager: request POST
+activate Manager
+
+Manager -> Manager: Валидация файла
+
+Manager -> Storage: Загрузить файл
+activate Storage
+Storage --> Manager: File ID
+deactivate Storage
+
+Manager -> DB_M: Сохранить путь к файлу
+activate DB_M
+DB_M --> Manager: OK
+deactivate DB_M
+
+Manager -> Kafka: Отправить задачу в Kafka
+activate Kafka
+
+Kafka -> Converter: Получить задачу из Kafka
+deactivate Kafka
+activate Converter
+
+Converter -> Storage: Скачать файл
+activate Storage
+
+Storage --> Converter: File content
+deactivate Storage
+
+Converter -> Converter: Конвертация PDF
+
+Converter -> Storage: Загрузить результат
+activate Storage
+Storage --> Converter: Новый конвертированного путь файла
+deactivate Storage
+
+Converter -> DB_C: Обновить статус
+activate DB_C
+DB_C --> Converter: OK
+deactivate DB_C
+
+Converter --> Kafka: Отправить новый путь
+deactivate Converter
+activate Kafka
+
+Kafka --> Manager: Получить новый путь
+deactivate Kafka
+
+Manager --> User: HTTP 200 OK
+deactivate Manager
+
+@enduml
