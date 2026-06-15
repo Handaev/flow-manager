@@ -27,8 +27,6 @@ dependencies {
     implementation("io.awspring.cloud:spring-cloud-aws-starter-s3:3.1.1")
     implementation("io.minio:minio:9.0.0")
 
-    implementation("org.springframework.cloud:spring-cloud-starter-netflix-eureka-client")
-
     implementation("org.mapstruct:mapstruct:1.6.2")
 
     compileOnly("org.projectlombok:lombok:1.18.32")
