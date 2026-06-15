@@ -50,3 +50,10 @@ springdoc:
     url: /openapi/openapi-flow-manager.yaml
     path: /swagger-ui.html
 
+eureka:
+  client:
+    service-url:
+      defaultZone: http://localhost:8761/eureka
+  instance:
+    instance-id: ${spring.application.name}
+
