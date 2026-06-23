@@ -26,11 +26,6 @@ spring:
       group-subscription-id: subscription
       topic-subscription-invalidate-cache: subscription-invalidate-cache
 
-  data:
-    redis:
-      host: localhost
-      port: 6379
-
 services:
   subscription:
     name: subscription
