@@ -16,8 +16,24 @@ spring:
         path-style-access-enabled: true
 
   kafka:
+    bootstrap-servers: localhost:9092
     producer:
       topicRequest: conversion-request
     consumer:
-      group-id: conversion
-      topicResponse: conversion-response
+      group-conversion-id: conversion
+      topic-conversion-response: conversion-response
+
+      group-subscription-id: subscription
+      topic-subscription-invalidate-cache: subscription-invalidate-cache
+
+  data:
+    redis:
+      host: localhost
+      port: 6379
+
+services:
+  subscription:
+    name: subscription
+    client:
+      api:
+        url: http://localhost:8086/subscription

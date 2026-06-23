@@ -105,11 +105,32 @@ services:
     depends_on:
       - kafka
 
+  redis:
+    image: redis:7-alpine
+    container_name: redis_server
+    ports:
+      - "6379:6379"
+    networks:
+      - flow-manager
+
+  redisinsight:
+    image: redis/redisinsight:latest
+    container_name: redis_insight
+    ports:
+      - "5540:5540"
+    networks:
+      - flow-manager
+    volumes:
+      - redisinsight_data:/data
+    depends_on:
+      - redis
+
 volumes:
   minio_data:
   postgres_manager:
   postgres_conversion:
   kafka_data:
+  redisinsight_data:
 
 networks:
   flow-manager:

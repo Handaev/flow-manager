@@ -23,6 +23,7 @@ public class WorkflowServiceImpl implements WorkflowService {
     private final FileMapper fileMapper;
     private final ConversionFileServiceImpl conversionFileServiceImpl;
     private final ConversionFileOutboxServiceImpl conversionFileOutboxServiceImpl;
+    private final SubscriptionServiceImpl subscriptionServiceImpl;
 
     @Transactional
     public FileResponseDto processConvert(String toExtension, String bucketName, MultipartFile multipartFile) throws  ManagerException {
@@ -32,6 +33,8 @@ public class WorkflowServiceImpl implements WorkflowService {
         } catch (IOException e) {
             throw new ManagerException(String.format("Ошибка при получении содержания файла: %s", multipartFile.getName()), e);
         }
+
+        subscriptionServiceImpl.checkingSubscriptionCurrentUser(conversionMultipartFile);
 
         minioServiceImpl.upload(conversionMultipartFile);
 

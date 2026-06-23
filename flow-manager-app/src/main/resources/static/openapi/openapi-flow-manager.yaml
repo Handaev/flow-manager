@@ -12,6 +12,8 @@ servers:
 tags:
   - name: Files
     description: Управление файлами и конвертация
+  - name: Users
+    description: Управление пользователями и их подписками
 
 paths:
   /files/upload-and-convert:
@@ -145,8 +147,94 @@ paths:
               schema:
                 $ref: '#/components/schemas/ErrorMessage'
 
+  /users/{user_name}:
+    patch:
+      tags:
+        - Users
+      summary: Обновить время подписки для пользователя
+      operationId: updateSubscriptionForUser
+      parameters:
+        - name: user_name
+          in: path
+          description: Имя пользователя
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Подписка обновлена
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UserResponseDto"
+        "400":
+          description: Введены не корректные данные
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorMessage'
+        "404":
+          description: Пользователь не найден
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorMessage'
+
+  /users/{user_name}/type/{subscription_type}:
+    patch:
+      tags:
+        - Users
+      summary: Изменить тип подписки пользователя
+      operationId: editTypeSubscriptionForUser
+      parameters:
+        - name: user_name
+          in: path
+          description: Имя пользователя
+          required: true
+          schema:
+            type: string
+        - name: subscription_type
+          in: path
+          description: Целевой тип подписки
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Тип успешно изменен
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UserResponseDto"
+        "400":
+          description: Введены не корректные данные
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorMessage'
+        "404":
+          description: Пользователь не найден
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorMessage'
+
 components:
   schemas:
+    UserResponseDto:
+      type: object
+      properties:
+        name:
+          type: string
+        subscriptionType:
+          type: string
+          enum:
+            - PAID
+            - FREE
+        endDate:
+          type: string
+          format: date
+
     FileResponse:
       type: object
       required:
