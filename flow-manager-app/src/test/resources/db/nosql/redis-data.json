@@ -1,0 +1,7 @@
+{
+  "user:subs:paid_user": {
+    "name": "paid_user",
+    "subscriptionType": "PAID",
+    "endDate": "2027-06-01"
+  }
+}

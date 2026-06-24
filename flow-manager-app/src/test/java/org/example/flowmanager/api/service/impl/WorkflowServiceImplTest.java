@@ -41,6 +41,9 @@ class WorkflowServiceImplTest {
     @Mock
     private ConversionFileOutboxServiceImpl conversionFileOutboxServiceImpl;
 
+    @Mock
+    private SubscriptionServiceImpl subscriptionServiceImpl;
+
     @InjectMocks
     private WorkflowServiceImpl workflowService;
 

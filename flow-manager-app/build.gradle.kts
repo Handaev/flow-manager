@@ -5,7 +5,16 @@ plugins {
 
 repositories {
     mavenCentral()
+    mavenLocal()
 }
+
+// Явно принуждаем Gradle использовать совместимую версию commons-lang3 для тестов
+configurations.all {
+    resolutionStrategy {
+        force("org.apache.commons:commons-lang3:3.17.0")
+    }
+}
+
 
 dependencies {
     implementation(enforcedPlatform("org.springframework.boot:spring-boot-dependencies:3.2.5"))
@@ -30,6 +39,11 @@ dependencies {
     implementation("org.springframework.cloud:spring-cloud-starter-netflix-eureka-client")
 
     implementation("org.mapstruct:mapstruct:1.6.2")
+
+    implementation("org.example:openapi-subscription:1.0.0")
+    implementation("org.springframework.cloud:spring-cloud-starter-openfeign:4.1.0")
+
+    implementation("org.springframework.boot:spring-boot-starter-data-redis")
 
     compileOnly("org.projectlombok:lombok:1.18.32")
     annotationProcessor("org.projectlombok:lombok:1.18.32")
